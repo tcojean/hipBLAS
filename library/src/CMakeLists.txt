@@ -104,11 +104,19 @@ rocm_install_targets(
 )
 #         PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
 
-rocm_export_targets(
-  TARGETS roc::hipblas
-  PREFIX hipblas
-  DEPENDS PACKAGE hip
-  NAMESPACE roc::
- )
+if ( HIP_PLATFORM MATCHES "hcc" )
+  rocm_export_targets(
+    TARGETS roc::hipblas
+    PREFIX hipblas
+    DEPENDS PACKAGE hip
+    NAMESPACE roc::
+  )
+else( )
+  rocm_export_targets(
+    TARGETS roc::hipblas
+    PREFIX hipblas
+    NAMESPACE roc::
+  )
+endif( )
 
 rocm_install_symlink_subdir( hipblas )
