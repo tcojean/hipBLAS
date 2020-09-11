@@ -132,12 +132,20 @@ rocm_install_targets(
 )
 #         PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
 
-rocm_export_targets(
-  TARGETS roc::hipblas
-  PREFIX hipblas
-  DEPENDS PACKAGE HIP
-  NAMESPACE roc::
- )
+if ( HIP_PLATFORM MATCHES "hcc" )
+  rocm_export_targets(
+    TARGETS roc::hipblas
+    PREFIX hipblas
+    DEPENDS PACKAGE HIP
+    NAMESPACE roc::
+  )
+else( )
+  rocm_export_targets(
+    TARGETS roc::hipblas
+    PREFIX hipblas
+    NAMESPACE roc::
+  )
+endif( )
 
 # Force installation of .f90 module files
 install(FILES "hipblas_module.f90"

@@ -5,6 +5,13 @@
 # The ROCm platform requires Ubuntu 16.04 or Fedora 24, which has cmake 3.5
 cmake_minimum_required( VERSION 3.5 )
 
+# HIP_PATH
+if( NOT DEFINED $ENV{HIP_PATH} )
+  set( HIP_PATH "/opt/rocm/hip" )
+else( )
+  set( HIP_PATH $ENV{HIP_PATH} )
+endif( )
+
 # We use C++14 features, this will add compile option: -std=c++14
 set( CMAKE_CXX_STANDARD 14 )
 
@@ -50,7 +57,7 @@ rocm_setup_version( VERSION ${VERSION_STRING} )
 
 # Append our library helper cmake path and the cmake path for hip (for convenience)
 # Users may override HIP path by specifying their own in CMAKE_MODULE_PATH
-list( APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
+list( APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${HIP_PATH}/cmake )
 
 # NOTE:  workaround until hcc & hip cmake modules fixes symlink logic in their config files; remove when fixed
 list( APPEND CMAKE_PREFIX_PATH /opt/rocm /opt/rocm/llvm /opt/rocm/hcc /opt/rocm/hip )
@@ -74,13 +81,16 @@ option( BUILD_SHARED_LIBS "Build hipBLAS as a shared library" ON )
 
 # Hip headers required of all clients; clients use hip to allocate device memory
 find_package( HIP REQUIRED )
-
-# Look for libamdhip64
-find_library(
-  LIBAMDHIP64_LIBRARY
-  NAMES libamdhip64.so
-  HINTS "${CMAKE_PREFIX_PATH}/lib" )
-message("amdhip64: ${LIBAMDHIP64_LIBRARY}")
+if ( HIP_PLATFORM MATCHES "hcc" )
+  # Look for libamdhip64
+  find_library(
+    LIBAMDHIP64_LIBRARY
+    NAMES libamdhip64.so
+    HINTS "${CMAKE_PREFIX_PATH}/lib" )
+  message("amdhip64: ${LIBAMDHIP64_LIBRARY}")
+else( )
+  set(HIP_INCLUDE_DIRS "${HIP_ROOT_DIR}/include")
+endif( )
 
 # Quietly look for CUDA, but if not found it's not an error
 # The presense of hip is not sufficient to determine if we want a rocm or cuda backend
