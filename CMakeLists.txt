@@ -6,7 +6,7 @@
 cmake_minimum_required( VERSION 3.5 )
 
 # HIP_PATH
-if( NOT DEFINED $ENV{HIP_PATH} )
+if( NOT DEFINED ENV{HIP_PATH} )
   set( HIP_PATH "/opt/rocm/hip" )
 else( )
   set( HIP_PATH $ENV{HIP_PATH} )
